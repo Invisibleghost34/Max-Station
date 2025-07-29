@@ -6,6 +6,7 @@
 #include "Interconnect.hpp"
 #include <cstdint>
 #include <string>
+#include <limits>
 
 
 void CPU::run_next_instruction()
@@ -24,7 +25,7 @@ CPU::CPU(std::unique_ptr<Interconnect> interconnect)
     inter(std::move(interconnect)), 
     regs(regs), 
     next_instruction(0x0), //NOP
-    sr(0)
+    sr(0), out_regs(regs), load(RegisterIndex(0), 0)
     {
         regs.fill(0xdeadbeee);
         regs[0] = 0;
@@ -139,7 +140,33 @@ void CPU::op_sw(Instruction &instruction)
     uint32_t addr = reg(s) + imm; 
     uint32_t v = reg(rt);
 
+    if(sr & 0x10000 != 0)
+    {
+        //Cache is isolated, we ignore the write 
+        std::cout << "Ignoring store while cache is isolated"; 
+        return;
+    }
+
     store32(addr, v);
+}
+
+void CPU::op_lw(Instruction &instruction)
+{
+    if(sr & 0x10000 != 0)
+    {
+        //Cache is isolated, ignore write
+        std::cout << "Ignoring load while cache is isolated \n"; 
+        return;
+    }
+
+    uint32_t i = instruction.imm_se();
+    RegisterIndex rt = RegisterIndex(instruction.return_registers());
+    RegisterIndex s = RegisterIndex(instruction.return_bits());
+
+    uint32_t addr = reg(s) + i; 
+    uint32_t v = load32(addr);
+
+    set_reg(rt, v);
 }
 
 //shift left logical SLL 
@@ -156,12 +183,37 @@ void CPU::op_sll(Instruction &instruction)
 
 void CPU::op_addiu(Instruction &instruction)
 {
+    //TODO cast the operands ie imm and s to int32_t, then implement a check_add for the overflow error
     uint32_t imm = instruction.imm_se();
+    int32_t i = static_cast<int32_t>(imm);
     RegisterIndex rt = RegisterIndex(instruction.return_registers());
     RegisterIndex s = RegisterIndex(instruction.return_bits());
+    int32_t ss = static_cast<RegisterIndex>(s);
 
-    uint32_t v = reg(s) + imm; 
-    set_reg(rt, v);
+    if(!check_add(i, ss))
+    {
+        throw std::runtime_error("ADDI overflow error");
+    }else 
+    {
+        uint32_t v = reg(s) + imm; 
+        set_reg(rt, v);
+    }
+    
+}
+
+bool CPU::check_add(int32_t a, int32_t b)
+{
+    if(b > 0 && a > INT32_MAX - b) // a+b would overflow 
+    {
+        return false; 
+    }
+    if(b < 0 && a < INT32_MIN - b) //a+b would underflow
+    {
+        return false;
+    }
+
+    return true;
+         
 }
 
 void CPU::op_j(Instruction &instruction)
@@ -180,6 +232,31 @@ void CPU::op_or(Instruction &instruction)
 
     uint v = reg(s) | reg(rt);
     set_reg(d, v);
+}
+
+void CPU::branch(uint32_t offset)
+{
+    offset = offset << 2; 
+    uint32_t curr_pc = pc; 
+    curr_pc = curr_pc + offset; 
+
+    //Compensate for the plus 4 in the run_next_instruction method 
+    curr_pc = curr_pc - 4; 
+
+    pc = curr_pc; 
+}
+
+//Branch if Not Equal 
+void CPU::op_bne(Instruction &instruction)
+{
+    uint32_t i = instruction.imm_se(); 
+    RegisterIndex s = RegisterIndex(instruction.return_bits());
+    RegisterIndex rt = RegisterIndex(instruction.return_registers());
+
+    if(reg(s) != reg(rt))
+    {
+        branch(i);
+    }
 }
 
 void CPU::store32(uint32_t addr, uint32_t val)
