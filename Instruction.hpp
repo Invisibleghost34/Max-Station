@@ -11,6 +11,11 @@ struct Instruction
     {
         return op >> 26; 
     }
+    //returns the same range as return_bits() method 
+    uint32_t cop_opcode()
+    {
+        return op >> 26; 
+    }
     //return register index in bits [20:16]
     uint32_t return_registers() 
     {

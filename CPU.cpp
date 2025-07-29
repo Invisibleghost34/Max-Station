@@ -20,7 +20,11 @@ void CPU::run_next_instruction()
 }
 
 CPU::CPU(std::unique_ptr<Interconnect> interconnect) 
-    : pc(0xbfc00000), inter(std::move(interconnect)), regs(regs), next_instruction(0x0) //NOP
+    : pc(0xbfc00000), 
+    inter(std::move(interconnect)), 
+    regs(regs), 
+    next_instruction(0x0), //NOP
+    sr(0)
     {
         regs.fill(0xdeadbeee);
         regs[0] = 0;
@@ -63,12 +67,44 @@ void CPU::decode_and_execute(Instruction &instruction)
             op_ori(instruction);
         case 0b101011: // store operation 
             op_sw(instruction);
+            break;
+        case 0b010000: 
+            op_cop0(instruction);
+            break;
         default: 
             throw std::runtime_error("Unhandled instruction {:08x}" + 
                 std::to_string(instruction.op));
 
     }
     
+}
+
+void CPU::op_cop0(Instruction &instruction) 
+{
+    switch(instruction.cop_opcode())
+    {
+        default: 
+            throw std::runtime_error("Unhandled cop0 instruction");
+    }
+}
+
+void CPU::op_mtc0(Instruction &instruction)
+{
+    RegisterIndex cpu_r = RegisterIndex(instruction.return_registers());
+    RegisterIndex cop_r = RegisterIndex(instruction.return_registers_two());
+    
+
+    uint32_t v = reg(cpu_r);
+
+    switch(cop_r) 
+    {
+        case 12: 
+            sr = v; 
+            break; 
+        default: 
+            throw std::runtime_error("Unhandled cop0 register");
+    }
+
 }
 
 void CPU::op_lui(Instruction &instruction)

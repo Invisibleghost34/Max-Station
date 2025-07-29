@@ -22,8 +22,10 @@ public:
 
         operator uint32_t() const {return value;}
     };
+
+    //Cop0 register 12: Status Register 
+    uint32_t sr; 
     void reset();
-    //Instruction next_instruction;
     void run_next_instruction();
     Instruction next_instruction; 
     uint32_t load32(uint32_t addr); 
@@ -34,6 +36,7 @@ public:
     void op_j(Instruction &instruction);
     void op_or(Instruction &instruction);
     void op_addiu(Instruction &instruction);
+    void op_cop0(Instruction &instruction);
     void store32(uint32_t addr, uint32_t val);
     void decode_and_execute(Instruction &instruction);
 
