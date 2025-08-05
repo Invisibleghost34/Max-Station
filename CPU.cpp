@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <string>
 #include <limits>
-#include <algorithm>
+
 void CPU::run_next_instruction()
 {
     uint32_t curr_pc = pc; 
