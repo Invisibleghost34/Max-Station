@@ -8,6 +8,7 @@
 
 class CPU { 
 public: 
+    std::unique_ptr<Interconnect> inter;
     CPU(std::unique_ptr<Interconnect> interconnect);
     struct RegisterIndex 
     {
@@ -28,14 +29,15 @@ public:
     uint32_t sr; 
     std::array<uint32_t, 32> out_regs; //second set of registers used to emulate the load delay slot, contain the output of the current instruction
     struct load { 
-        RegisterIndex id; 
-        uint32_t value; 
+        RegisterIndex id;
+        uint32_t value;
 
     };
+    load m_load;
     void reset();
     void run_next_instruction();
     Instruction next_instruction; 
-    uint32_t load32(uint32_t addr); 
+    uint32_t load32(uint32_t addr) const; 
     void op_lui(Instruction &instruction);
     void op_ori(Instruction &instruction);
     void op_sw(Instruction &instruction);
@@ -73,8 +75,6 @@ public:
 private: 
     uint32_t pc; 
     std::array<uint32_t, 32> regs;
-    std::unique_ptr<Interconnect> inter;
-    
-    uint32_t load32(uint32_t address) const; 
     
 }; 
+

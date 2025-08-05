@@ -20,9 +20,9 @@ void CPU::run_next_instruction()
     //Execute the pending load(if any, otherwise it will load $zero which is a NOP)
     //Set_reg works only on out_regs so this operation won't be visible by the next instructioin
 
-    
-
     decode_and_execute(instruction);
+
+    //Copy the output registers as input for the next instruction
 }
 
 CPU::CPU(std::unique_ptr<Interconnect> interconnect) 
@@ -30,7 +30,7 @@ CPU::CPU(std::unique_ptr<Interconnect> interconnect)
     inter(std::move(interconnect)), 
     regs(regs), 
     next_instruction(0x0), //NOP
-    sr(0), out_regs(regs), load(RegisterIndex(0), 0)
+    sr(0), out_regs(regs), m_load{RegisterIndex(0), 0}
     {
         regs.fill(0xdeadbeee);
         regs[0] = 0;
@@ -42,7 +42,7 @@ void CPU::reset()
     // std::fill(std::begin(regs.begin(), regs.end(), 0));
 }
 
-uint32_t CPU::load32(uint32_t addr) const 
+uint32_t CPU::load32(uint32_t addr) const
 { 
     return inter->load32(addr);
 }

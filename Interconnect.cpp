@@ -1,10 +1,10 @@
 #include "Interconnect.hpp"
 #include <iostream>
-#include "Range.hpp"
 #include "Range.cpp"
+//#include "CPU.hpp"
 #include <stdexcept>
 #include <format>
-#include "BIOS.hpp"
+//#include "BIOS.cpp"
 #include <cstdint>
 
 
