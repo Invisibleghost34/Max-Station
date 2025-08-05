@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <string>
 #include <limits>
+#include <vector>
 
 
 void CPU::run_next_instruction()
