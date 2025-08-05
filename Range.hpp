@@ -18,6 +18,7 @@ class Range {
                 return std::nullopt;
             }
         }
+        
     private: 
         uint32_t start_; 
         uint32_t length_;        

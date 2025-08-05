@@ -17,6 +17,11 @@ void CPU::run_next_instruction()
     next_instruction = Instruction(raw_next_instruction);
     pc = curr_pc + 4; 
 
+    //Execute the pending load(if any, otherwise it will load $zero which is a NOP)
+    //Set_reg works only on out_regs so this operation won't be visible by the next instructioin
+
+    
+
     decode_and_execute(instruction);
 }
 

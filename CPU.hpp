@@ -4,7 +4,7 @@
 #include "Interconnect.hpp"
 #include <memory>
 #include <cstdint>
-#include <tuple>
+
 
 class CPU { 
 public: 
@@ -27,7 +27,11 @@ public:
     //Cop0 register 12: Status Register 
     uint32_t sr; 
     std::array<uint32_t, 32> out_regs; //second set of registers used to emulate the load delay slot, contain the output of the current instruction
-    std::tuple<RegisterIndex, uint32_t> load;
+    struct load { 
+        RegisterIndex id; 
+        uint32_t value; 
+
+    };
     void reset();
     void run_next_instruction();
     Instruction next_instruction; 
