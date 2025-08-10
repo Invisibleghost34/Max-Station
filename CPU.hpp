@@ -24,7 +24,7 @@ public:
 
         operator uint32_t() const {return value;}
     };
-
+    
     //Cop0 register 12: Status Register 
     uint32_t sr; 
     std::array<uint32_t, 32> out_regs; //second set of registers used to emulate the load delay slot, contain the output of the current instruction
@@ -43,9 +43,11 @@ public:
     void op_sw(Instruction &instruction);
     void op_lw(Instruction &instruction);
     void op_sll(Instruction &instruction);
+    void op_sltu(Instruction &instruction);
     void op_j(Instruction &instruction);
     void op_or(Instruction &instruction);
     void op_addiu(Instruction &instruction);
+    void op_addu(Instruction &instruction); 
     void op_cop0(Instruction &instruction);
     void op_mtc0(Instruction &instruction);
     void branch(uint32_t offset); 

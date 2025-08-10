@@ -18,10 +18,13 @@ void CPU::run_next_instruction()
 
     //Execute the pending load(if any, otherwise it will load $zero which is a NOP)
     //Set_reg works only on out_regs so this operation won't be visible by the next instructioin
+    this->m_load;  
+    
 
     decode_and_execute(instruction);
 
     //Copy the output registers as input for the next instruction
+    regs = out_regs; 
 }
 
 CPU::CPU(std::unique_ptr<Interconnect> interconnect) 
@@ -93,6 +96,17 @@ void CPU::op_cop0(Instruction &instruction)
     }
 }
 
+void CPU::op_sltu(Instruction &instruction)
+{
+    RegisterIndex d = RegisterIndex(instruction.return_registers_two());
+    RegisterIndex s = RegisterIndex(instruction.return_bits());
+    RegisterIndex rt = RegisterIndex(instruction.return_registers());
+
+    uint32_t v = reg(s) < reg(rt); 
+
+    set_reg(d, v);
+}
+
 void CPU::op_mtc0(Instruction &instruction)
 {
     RegisterIndex cpu_r = RegisterIndex(instruction.return_registers());
@@ -103,9 +117,17 @@ void CPU::op_mtc0(Instruction &instruction)
 
     switch(cop_r) 
     {
+        case 3 | 5 | 6 | 7 | 9 | 11: // Breakpoints registers
+            throw std::runtime_error("Unhandled wrtie to cop0r{}");
+             break; 
         case 12: 
             sr = v; 
             break; 
+        case 13: // Cause register 
+            if(v != 0) 
+            { 
+                throw std::logic_error("unhandled write to CAUSE register");
+            }
         default: 
             throw std::runtime_error("Unhandled cop0 register");
     }
@@ -143,7 +165,7 @@ void CPU::op_sw(Instruction &instruction)
 
     uint32_t addr = reg(s) + imm; 
     uint32_t v = reg(rt);
-
+    //TODO fix this 
     if(sr & 0x10000 != 0)
     {
         //Cache is isolated, we ignore the write 
@@ -152,6 +174,17 @@ void CPU::op_sw(Instruction &instruction)
     }
 
     store32(addr, v);
+}
+
+void CPU::op_addu(Instruction &instruction)
+{
+    RegisterIndex d = RegisterIndex(instruction.return_registers_two());
+    RegisterIndex s = RegisterIndex(instruction.return_bits());
+    RegisterIndex rt = RegisterIndex(instruction.return_registers());
+
+    uint32_t v = reg(s) + reg(rt); 
+
+    set_reg(d, v); 
 }
 
 void CPU::op_lw(Instruction &instruction)

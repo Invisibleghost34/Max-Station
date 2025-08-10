@@ -1,10 +1,8 @@
 #include "Interconnect.hpp"
 #include <iostream>
 #include "Range.cpp"
-//#include "CPU.hpp"
 #include <stdexcept>
 #include <format>
-//#include "BIOS.cpp"
 #include <cstdint>
 
 
@@ -58,5 +56,14 @@ void Interconnect::store32(uint32_t addr, uint32_t value)
         }
           
     }
+}
+
+uint32_t Interconnect::mask_region(uint32_t addr)
+{
+    //Index address space in 512MB chunks 
+    uint32_t index = (addr >>29); 
+
+    return addr & REGION_MASK[index];
+
 }
     
