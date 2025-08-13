@@ -43,6 +43,7 @@ public:
     void op_sw(Instruction &instruction);
     void op_lw(Instruction &instruction);
     void op_sll(Instruction &instruction);
+    void op_sh(Instruction &instruction); 
     void op_sltu(Instruction &instruction);
     void op_j(Instruction &instruction);
     void op_or(Instruction &instruction);
@@ -53,6 +54,7 @@ public:
     void branch(uint32_t offset); 
     void op_bne(Instruction &instruction);
     void store32(uint32_t addr, uint32_t val);
+    void store16(uint32_t addr, uint16_t val);
     bool check_add(int32_t a, int32_t b);
     void decode_and_execute(Instruction &instruction);
 

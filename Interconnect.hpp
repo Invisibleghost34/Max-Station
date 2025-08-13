@@ -27,6 +27,7 @@ public:
     uint32_t load32(uint32_t addr);
     uint32_t mask_region(uint32_t addr);
     void store32(uint32_t addr, uint32_t value); 
+    void store16(uint32_t addr, uint16_t value); 
    
 };
 

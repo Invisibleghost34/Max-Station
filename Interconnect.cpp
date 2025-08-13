@@ -66,4 +66,19 @@ uint32_t Interconnect::mask_region(uint32_t addr)
     return addr & REGION_MASK[index];
 
 }
+
+void Interconnect::store16(uint32_t addr, uint16_t value)
+{ 
+    if(addr % 2 != 0)
+    { 
+        throw std::runtime_error("Unalighned store16 address");
+    }
+    uint32_t abs_addr = mask_region(addr);
+
+    if (auto offset = SPU.contains(addr) ) 
+    { 
+        std::cout << "Unhandled write to SPU register\n"; 
+    }
+    throw std::runtime_error("unhandled store16 into address");
+}
     

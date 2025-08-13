@@ -82,7 +82,7 @@ void CPU::decode_and_execute(Instruction &instruction)
         default: 
             throw std::runtime_error("Unhandled instruction {:08x}" + 
                 std::to_string(instruction.op));
-
+//TODO add the implemented instruction opcodes to the decode and execute method 
     }
     
 }
@@ -107,6 +107,29 @@ void CPU::op_sltu(Instruction &instruction)
     set_reg(d, v);
 }
 
+void CPU::op_sh(Instruction &instruction)
+{
+    if(sr & 0x100000 != 0)
+    {
+        //Cache is isolated, ignore write 
+        std::cout << "Ignoring store while cache is isolated\n";
+        return; 
+    }
+
+    uint32_t i = instruction.imm_se();
+    RegisterIndex rt = RegisterIndex(instruction.return_registers());
+    RegisterIndex s = RegisterIndex(instruction.return_bits());
+
+    uint32_t addr = reg(s) + i; 
+    uint16_t v = reg(rt); 
+
+    store16(addr, v);
+}
+
+void CPU::store16(uint32_t addr, uint16_t val)
+{
+    inter->store16(addr, val);
+}
 void CPU::op_mtc0(Instruction &instruction)
 {
     RegisterIndex cpu_r = RegisterIndex(instruction.return_registers());
