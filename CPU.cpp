@@ -283,6 +283,27 @@ void CPU::op_j(Instruction &instruction)
     pc = (pc & 0xf0000000) | (imm << 2);
 }
 
+void CPU::op_jal(Instruction &instruction)
+{
+   uint32_t ra = this->pc; 
+
+   set_reg(RegisterIndex(31), ra); 
+
+   op_j(instruction); 
+
+}
+
+void CPU::op_andi(Instruction &instruction)
+{
+    uint32_t imm = instruction.return_immediate();
+    RegisterIndex rt = RegisterIndex(instruction.return_registers());
+    RegisterIndex s = RegisterIndex(instruction.return_bits());
+
+    uint32_t v = reg(s) & imm; 
+
+    set_reg(rt, v);
+}
+
 //Bitwise Or 
 void CPU::op_or(Instruction &instruction)
 {
@@ -292,6 +313,31 @@ void CPU::op_or(Instruction &instruction)
 
     uint v = reg(s) | reg(rt);
     set_reg(d, v);
+}
+
+void CPU::op_sb(Instruction &instruction)
+{
+    if (sr & 0x10000 != 0)
+    {
+        std::cout << "Ignoring store while cache is isolated\n";
+        return; 
+    }
+
+    uint32_t i = instruction.imm_se();
+    RegisterIndex rt = RegisterIndex(instruction.return_registers());
+    RegisterIndex s = RegisterIndex(instruction.return_bits());
+
+    uint32_t addr = reg(s) + i; 
+    uint8_t v = reg(rt); 
+
+    store8(addr, v);
+}
+
+void CPU::op_jr(Instruction &instruction)
+{
+    RegisterIndex s = RegisterIndex(instruction.return_bits());
+
+    this->pc = reg(s); 
 }
 
 void CPU::branch(uint32_t offset)
@@ -322,6 +368,28 @@ void CPU::op_bne(Instruction &instruction)
 void CPU::store32(uint32_t addr, uint32_t val)
 {
     inter->store32(addr, val);
+}
+
+void CPU::store8(uint32_t addr, uint8_t val)
+{
+   inter->store8(addr, val);
+}
+
+uint8_t CPU::load8(uint32_t addr)
+{
+    
+}
+
+void CPU::op_lb(Instruction &instruction)
+{
+    uint32_t i = instruction.imm_se(); 
+    RegisterIndex rt = RegisterIndex(instruction.return_registers());
+    RegisterIndex s = RegisterIndex(instruction.return_bits());
+    uint32_t addr = reg(s) + i; 
+
+    uint8_t v = load8(addr); 
+
+    
 }
 
 

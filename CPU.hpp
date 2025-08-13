@@ -46,15 +46,22 @@ public:
     void op_sh(Instruction &instruction); 
     void op_sltu(Instruction &instruction);
     void op_j(Instruction &instruction);
+    void op_jal(Instruction &instruction); 
     void op_or(Instruction &instruction);
+    void op_sb(Instruction &instruction);
+    void op_jr(Instruction &instruction);
+    uint8_t load8(uint32_t addr); 
+    void op_lb(Instruction &instruction);
     void op_addiu(Instruction &instruction);
     void op_addu(Instruction &instruction); 
+    void op_andi(Instruction &instruction);
     void op_cop0(Instruction &instruction);
     void op_mtc0(Instruction &instruction);
     void branch(uint32_t offset); 
     void op_bne(Instruction &instruction);
     void store32(uint32_t addr, uint32_t val);
     void store16(uint32_t addr, uint16_t val);
+    void store8(uint32_t addr, uint8_t val);
     bool check_add(int32_t a, int32_t b);
     void decode_and_execute(Instruction &instruction);
 

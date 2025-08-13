@@ -81,4 +81,17 @@ void Interconnect::store16(uint32_t addr, uint16_t value)
     }
     throw std::runtime_error("unhandled store16 into address");
 }
+
+void Interconnect::store8(uint32_t addr, uint8_t _)
+{
+    uint32_t abs_addr = mask_region(addr);
+
+    if(auto offset = EXPANSION_2.contains(addr) )
+    {
+        std::cout << "Unhandled write to expansion 2 register"; 
+        return;
+    }
+
+    throw std::runtime_error("Unhandled store8 into address {:08x}");
+}
     
